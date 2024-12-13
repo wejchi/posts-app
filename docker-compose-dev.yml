@@ -1,0 +1,10 @@
+services:
+  app:
+    build:
+      dockerfile: ./docker/Dockerfile
+      context: ./
+    ports:
+      - '3000:3000'
+    command: 'npm run start:dev'
+    volumes:
+      - ./src:/usr/src/app/src
