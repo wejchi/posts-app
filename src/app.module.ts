@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PostsModule } from './posts/posts.module';
 import { Post } from './posts/entities/post.entity';
+import { CreatePostsTable1734186231934 } from './migrations/1734186231934-migration';
 
 @Module({
   imports: [
@@ -15,6 +16,8 @@ import { Post } from './posts/entities/post.entity';
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
       entities: [Post],
+      migrations: [CreatePostsTable1734186231934],
+      migrationsRun: true,
     }),
     PostsModule,
   ],

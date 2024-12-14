@@ -10,6 +10,7 @@ services:
     command: 'npm run start:dev'
     volumes:
       - ./src:/usr/src/app/src
+      - ./node_modules:/usr/src/app/node_modules
 
   posts-database:
     image: postgres:latest
