@@ -37,4 +37,8 @@ export class Post {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  constructor(data: Partial<Post>) {
+    Object.assign(this, data);
+  }
 }
