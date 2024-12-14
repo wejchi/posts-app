@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { StateEnum } from '../entities/state.enum';
+import { StateEnum } from '../enums/state.enum';
 
 export class CreatePostDto {
   @ApiProperty({ type: String, minLength: 3, maxLength: 100 })

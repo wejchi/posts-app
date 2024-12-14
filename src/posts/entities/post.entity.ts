@@ -7,7 +7,7 @@ import {
   Unique,
   UpdateDateColumn,
 } from 'typeorm';
-import { StateEnum } from './state.enum';
+import { StateEnum } from '../enums/state.enum';
 
 @Entity()
 export class Post {

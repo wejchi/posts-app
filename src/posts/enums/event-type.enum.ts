@@ -1,0 +1,5 @@
+export enum EventTypeEnum {
+  POST_CREATED = 'POST_CREATED',
+  POST_UPDATED = 'POST_UPDATED',
+  POST_REMOVED = 'POST_REMOVED',
+}

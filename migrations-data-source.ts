@@ -1,6 +1,7 @@
 import { config } from 'dotenv';
 import { DataSource } from 'typeorm';
 import { Post } from './src/posts/entities/post.entity';
+import { PostEvent } from 'src/posts/entities/post-event.entity';
 
 config({ path: '.migrations.env' });
 
@@ -13,7 +14,7 @@ const dataSource = new DataSource({
   database: process.env.POSTGRES_DB,
   schema: 'public',
   migrationsTransactionMode: 'each',
-  entities: [Post],
+  entities: [Post, PostEvent],
   migrations: [],
 });
 
