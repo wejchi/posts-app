@@ -13,6 +13,13 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { ApiOkResponse } from '@nestjs/swagger';
 import { PostDto } from './dto/post.dto';
 import { CustomParseUUIDPipe } from './uuid-pipe-custom';
+import {
+  ApiOkPaginatedResponse,
+  ApiPaginationQuery,
+  Paginate,
+  PaginateQuery,
+} from 'nestjs-paginate';
+import { PostPaginationConfig } from './post-pagination.config';
 
 @Controller('posts')
 export class PostsController {
@@ -25,8 +32,10 @@ export class PostsController {
   }
 
   @Get()
-  findAll() {
-    return this.postsService.findAll();
+  @ApiOkPaginatedResponse(PostDto, PostPaginationConfig)
+  @ApiPaginationQuery(PostPaginationConfig)
+  findAll(@Paginate() query: PaginateQuery) {
+    return this.postsService.findAll(query);
   }
 
   @Get(':id')

@@ -14,6 +14,8 @@ import { EventTypeEnum } from './enums/event-type.enum';
 import { IObjectHasher } from './hash/hash-object.interface';
 import { ObjectMd5Hasher } from './hash/objectMd5Hasher';
 import { PostDto } from './dto/post.dto';
+import { paginate, PaginateQuery } from 'nestjs-paginate';
+import { PostPaginationConfig } from './post-pagination.config';
 
 @Injectable()
 export class PostsService {
@@ -70,8 +72,16 @@ export class PostsService {
     }
   }
 
-  findAll() {
-    return `This action returns all posts`;
+  async findAll(query: PaginateQuery) {
+    const paginated = await paginate(
+      query,
+      this.postsRepository,
+      PostPaginationConfig,
+    );
+    paginated.data = paginated.data.map((post: Post) =>
+      PostDto.fromPost(post),
+    ) as any;
+    return paginated;
   }
 
   async findOne(id: string) {

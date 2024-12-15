@@ -40,6 +40,14 @@ describe('Posts (e2e)', () => {
     ).body;
     expect(updatedPost).toMatchObject(updatePostDto);
 
+    const paginationResult = (
+      await request(BASE_URL)
+        .get('/posts')
+        .query({ search: updatePostDto.title })
+        .expect(200)
+    ).body;
+    expect(paginationResult.data[0]).toEqual(updatedPost);
+
     await request(BASE_URL).delete(`/posts/${createdPost.id}`).expect(200);
     await request(BASE_URL).delete(`/posts/${createdPost.id}`).expect(404);
     await request(BASE_URL).get(`/posts/${createdPost.id}`).expect(404);
