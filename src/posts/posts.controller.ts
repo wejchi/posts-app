@@ -12,7 +12,7 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { ApiOkResponse } from '@nestjs/swagger';
 import { PostDto } from './dto/post.dto';
-import { CustomParseUUIDPipe } from 'src/pipe/uuid-pipe-custom';
+import { CustomParseUUIDPipe } from './uuid-pipe-custom';
 
 @Controller('posts')
 export class PostsController {

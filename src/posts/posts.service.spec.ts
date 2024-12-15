@@ -49,7 +49,18 @@ describe('PostsService', () => {
 
   it('should call findOneOrFail with id', () => {
     const id = crypto.randomUUID();
-    const repoSpy = jest.spyOn(postRepo, 'findOneOrFail');
+
+    const repoSpy = jest
+      .spyOn(postRepo, 'findOneOrFail')
+      .mockImplementation(async (x) => {
+        return new Post({
+          id: x['where']['id'],
+          title: 'Post Title',
+          content: 'Post Content',
+          hash: 'old hash',
+          state: StateEnum.DRAFT,
+        });
+      });
     service.findOne(id);
     expect(repoSpy).toHaveBeenCalledWith({ where: { id } });
   });
@@ -166,8 +177,6 @@ describe('PostsService', () => {
       new Post({
         id: postId,
         ...updateDto,
-        created_at: creationDate,
-        updated_at: newUpdateDate,
         hash: expectedHash,
       }),
     );

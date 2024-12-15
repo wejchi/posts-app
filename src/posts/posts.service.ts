@@ -13,6 +13,7 @@ import { PostEvent } from './entities/post-event.entity';
 import { EventTypeEnum } from './enums/event-type.enum';
 import { IObjectHasher } from './hash/hash-object.interface';
 import { ObjectMd5Hasher } from './hash/objectMd5Hasher';
+import { PostDto } from './dto/post.dto';
 
 @Injectable()
 export class PostsService {
@@ -40,7 +41,7 @@ export class PostsService {
     } catch (err) {
       this.handleErrors(err);
     }
-    return created;
+    return PostDto.fromPost(created);
   }
 
   private createEvent(post: Post, eventType: EventTypeEnum) {
@@ -73,8 +74,9 @@ export class PostsService {
     return `This action returns all posts`;
   }
 
-  findOne(id: string) {
-    return this.postsRepository.findOneOrFail({ where: { id } });
+  async findOne(id: string) {
+    const post = await this.postsRepository.findOneOrFail({ where: { id } });
+    return PostDto.fromPost(post);
   }
 
   async update(id: string, updatePostDto: UpdatePostDto) {
@@ -94,7 +96,7 @@ export class PostsService {
         return post;
       },
     );
-    return updated;
+    return PostDto.fromPost(updated);
   }
 
   updatePost(post: Post, updateDto: UpdatePostDto) {
@@ -123,7 +125,7 @@ export class PostsService {
         return post;
       },
     );
-    return removed;
+    return PostDto.fromPost(removed);
   }
 
   private handleErrors(err) {
