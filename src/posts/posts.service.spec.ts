@@ -334,4 +334,57 @@ describe('PostsService', () => {
       }),
     );
   });
+
+  it('should remove post and create event', async () => {
+    const postId = crypto.randomUUID();
+    const creationDate = new Date();
+    const transactionalManagerMock = {
+      findOneOrFail: jest.fn((cls, x) => {
+        return new Post({
+          id: x.where.id,
+          title: 'Post Title',
+          content: 'Post Content',
+          hash: 'old hash',
+          state: StateEnum.DRAFT,
+          created_at: creationDate,
+          updated_at: creationDate,
+        });
+      }),
+      save: jest.fn((x) => {
+        return x;
+      }),
+      remove: jest.fn((x) => x),
+    } as any;
+
+    const transactionSpy = jest
+      .spyOn(entityManagerMock, 'transaction')
+      .mockImplementation(async (s, x) => {
+        return x(transactionalManagerMock as any);
+      });
+
+    await service.remove(postId);
+
+    expect(transactionSpy).toHaveBeenCalledTimes(1);
+    expect(transactionalManagerMock.findOneOrFail).toHaveBeenCalledWith(Post, {
+      where: { id: postId },
+    });
+
+    expect(transactionalManagerMock.remove).toHaveBeenCalledWith(
+      new Post({
+        id: postId,
+        title: 'Post Title',
+        content: 'Post Content',
+        hash: 'old hash',
+        state: StateEnum.DRAFT,
+        created_at: creationDate,
+        updated_at: creationDate,
+      }),
+    );
+    expect(transactionalManagerMock.save).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: { id: postId },
+        type: EventTypeEnum.POST_REMOVED,
+      }),
+    );
+  });
 });

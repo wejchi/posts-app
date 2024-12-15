@@ -47,7 +47,7 @@ export class PostsService {
     switch (eventType) {
       case EventTypeEnum.POST_REMOVED:
         return new PostEvent({
-          timestamp: post.updated_at,
+          timestamp: new Date(),
           type: eventType,
           sent: false,
           data: {
@@ -112,8 +112,18 @@ export class PostsService {
     return post;
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} post`;
+  async remove(id: string) {
+    const removed = await this.entityManager.transaction(
+      'READ COMMITTED',
+      async (manager) => {
+        const post = await manager.findOneOrFail(Post, { where: { id } });
+        await manager.remove(post);
+        const event = this.createEvent(post, EventTypeEnum.POST_REMOVED);
+        await manager.save(event);
+        return post;
+      },
+    );
+    return removed;
   }
 
   private handleErrors(err) {
