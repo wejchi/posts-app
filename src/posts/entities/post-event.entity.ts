@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { EventTypeEnum } from '../enums/event-type.enum';
-import { PostEventData } from '../post-event-data';
+import { PostEventData } from './post-event-data';
 
 @Entity()
 export class PostEvent {

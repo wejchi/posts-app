@@ -9,10 +9,10 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { EntityManager, Repository } from 'typeorm';
 import { Post } from './entities/post.entity';
 import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
-import { ObjectMd5Hasher } from './objectMd5Hasher';
-import { IObjectHasher } from './hash-object.interface';
 import { PostEvent } from './entities/post-event.entity';
 import { EventTypeEnum } from './enums/event-type.enum';
+import { IObjectHasher } from './hash/hash-object.interface';
+import { ObjectMd5Hasher } from './hash/objectMd5Hasher';
 
 @Injectable()
 export class PostsService {
@@ -43,10 +43,6 @@ export class PostsService {
     return created;
   }
 
-  private hashPost(title, content) {
-    return this.hashProvider.makeHash({ title, content });
-  }
-
   private createEvent(post: Post, eventType: EventTypeEnum) {
     switch (eventType) {
       case EventTypeEnum.POST_REMOVED:
@@ -67,6 +63,7 @@ export class PostsService {
             id: post.id,
             content: post.content,
             title: post.title,
+            state: post.state,
           },
         });
     }
@@ -80,15 +77,46 @@ export class PostsService {
     return this.postsRepository.findOneOrFail({ where: { id } });
   }
 
-  update(id: string, updatePostDto: UpdatePostDto) {
-    return `This action updates a #${id} post`;
+  async update(id: string, updatePostDto: UpdatePostDto) {
+    const updated = await this.entityManager.transaction(
+      'SERIALIZABLE',
+      async (manager) => {
+        let post = await manager.findOneOrFail(Post, {
+          where: { id },
+          lock: { onLocked: 'skip_locked', mode: 'pessimistic_read' },
+        });
+
+        post = this.updatePost(post, updatePostDto);
+        post = await manager.save(post);
+        const event = this.createEvent(post, EventTypeEnum.POST_UPDATED);
+        await manager.save(event);
+
+        return post;
+      },
+    );
+    return updated;
+  }
+
+  updatePost(post: Post, updateDto: UpdatePostDto) {
+    if (
+      (updateDto.title && updateDto.title !== post.title) ||
+      (updateDto.content && updateDto.content)
+    ) {
+      post.hash = this.hashPost(
+        updateDto.title || post.title,
+        updateDto.content || post.content,
+      );
+    }
+
+    Object.assign(post, updateDto);
+    return post;
   }
 
   remove(id: string) {
     return `This action removes a #${id} post`;
   }
 
-  handleErrors(err) {
+  private handleErrors(err) {
     if (err.constraint == 'UniquePostTitleConstraint') {
       throw new ConflictException({
         message: 'title must be unique',
@@ -96,5 +124,9 @@ export class PostsService {
         status: HttpStatus.CONFLICT,
       });
     }
+  }
+
+  private hashPost(title, content) {
+    return this.hashProvider.makeHash({ title, content });
   }
 }
