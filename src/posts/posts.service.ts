@@ -130,7 +130,7 @@ export class PostsService {
     if (err.constraint == 'UniquePostTitleConstraint') {
       throw new ConflictException({
         message: 'title must be unique',
-        service: 'Posts',
+        service: 'posts',
         status: HttpStatus.CONFLICT,
       });
     }
