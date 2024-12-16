@@ -1,11 +1,15 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Logger } from '@nestjs/common';
 import { EventPattern, Payload } from '@nestjs/microservices';
 
 @Controller()
 export class NatsListenerCOntroller {
+  private readonly logger = new Logger(NatsListenerCOntroller.name, {
+    timestamp: true,
+  });
+
   @EventPattern('POST_EVENT')
   getDate(@Payload() data) {
-    console.log(data);
+    this.logger.log(data);
     return 'ok';
   }
 }

@@ -7,7 +7,7 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { StateEnum } from './enums/state.enum';
 import { PostEvent } from './entities/post-event.entity';
 import { EventTypeEnum } from './enums/event-type.enum';
-import { ObjectMd5Hasher } from './hash/MD6-hash';
+import { ObjectMd5Hasher } from './hash/MD5-hash';
 import { UpdatePostDto } from './dto/update-post.dto';
 
 describe('PostsService', () => {

@@ -14,7 +14,7 @@ import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { PostEvent } from './entities/post-event.entity';
 import { EventTypeEnum } from './enums/event-type.enum';
 import { IObjectHasher } from './hash/hash-object.interface';
-import { ObjectMd5Hasher } from './hash/MD6-hash';
+import { ObjectMd5Hasher } from './hash/MD5-hash';
 import { PostDto } from './dto/post.dto';
 import { paginate, PaginateQuery } from 'nestjs-paginate';
 import { PostPaginationConfig } from './entities/post-pagination.config';
