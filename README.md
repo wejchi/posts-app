@@ -24,6 +24,12 @@ docker compose -f docker-compose-dev.yml --env-file .env up
 docker compose -f docker-compose.yml --env-file .env up
 ```
 
+# Install dependencies
+
+```
+npm install
+```
+
 # E2E tests
 
 ```
@@ -35,3 +41,5 @@ npm run test:e2e
 ```
 npm run test
 ```
+
+- run command in terminal in root folder of the project
