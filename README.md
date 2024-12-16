@@ -8,6 +8,8 @@ The application uses PostgreSQL as its database to store posts and postEvents.
 
 Migrations are configured to run automatically.
 
+# Developed and tested using Node.js 22. Tests may not work with older versions.
+
 # To see api docs see address http://localhost:3000/api in browser.
 
 # Run in development mode
