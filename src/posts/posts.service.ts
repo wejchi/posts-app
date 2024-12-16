@@ -32,24 +32,27 @@ export class PostsService {
   ) {}
 
   async create(createPostDto: CreatePostDto) {
-    let created;
     try {
-      await this.entityManager.transaction('SERIALIZABLE', async (manager) => {
-        const post = new Post({
-          ...createPostDto,
-          hash: this.hashPost(createPostDto.title, createPostDto.content),
-        });
+      const created = await this.entityManager.transaction(
+        'SERIALIZABLE',
+        async (manager) => {
+          const post = new Post({
+            ...createPostDto,
+            hash: this.hashPost(createPostDto.title, createPostDto.content),
+          });
 
-        created = await manager.save(post);
+          const created = await manager.save(post);
 
-        const event = this.createEvent(created, EventTypeEnum.POST_CREATED);
+          const event = this.createEvent(created, EventTypeEnum.POST_CREATED);
 
-        await manager.save(event);
-      });
+          await manager.save(event);
+          return created;
+        },
+      );
+      return PostDto.fromPost(created);
     } catch (err) {
       this.handleErrors(err);
     }
-    return PostDto.fromPost(created);
   }
 
   private createEvent(post: Post, eventType: EventTypeEnum) {
