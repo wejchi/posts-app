@@ -19,7 +19,7 @@ import {
   Paginate,
   PaginateQuery,
 } from 'nestjs-paginate';
-import { PostPaginationConfig } from './post-pagination.config';
+import { PostPaginationConfig } from './entities/post-pagination.config';
 
 @Controller('posts')
 export class PostsController {

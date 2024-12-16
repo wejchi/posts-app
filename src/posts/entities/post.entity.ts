@@ -15,12 +15,12 @@ export class Post {
   id: string;
 
   @Column({ nullable: false, length: 100, type: 'varchar' })
-  @Check(`LENGTH(title) BETWEEN 3 AND 100`)
+  @Check('TitleLengthCheck', `LENGTH(title) BETWEEN 3 AND 100`)
   @Unique('UniquePostTitleConstraint', ['title'])
   title: string;
 
   @Column({ nullable: false, type: 'varchar' })
-  @Check(`LENGTH(title) >= 3`)
+  @Check('ContentLengthCheck', `LENGTH(title) >= 3`)
   content: string;
 
   //- state: enum (the only strings allowed are: DRAFT, PUBLISHED) - provided by the user, optional (can be stored as a list or string; implementation details are flexible); default value - DRAFT

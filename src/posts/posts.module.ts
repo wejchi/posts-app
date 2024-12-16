@@ -4,7 +4,7 @@ import { PostsController } from './posts.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Post } from './entities/post.entity';
 import { PostEvent } from './entities/post-event.entity';
-import { ObjectMd5Hasher } from './hash/objectMd5Hasher';
+import { ObjectMd5Hasher } from './hash/MD6-hash';
 import { OutboxListenerService } from './outbox-listener.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 

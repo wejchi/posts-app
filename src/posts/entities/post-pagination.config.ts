@@ -1,5 +1,5 @@
 import { FilterOperator, FilterSuffix, PaginateConfig } from 'nestjs-paginate';
-import { Post } from './entities/post.entity';
+import { Post } from './post.entity';
 
 export const PostPaginationConfig: PaginateConfig<Post> = {
   sortableColumns: ['id'],

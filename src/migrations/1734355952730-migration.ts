@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class SetupNotification1734267138221 implements MigrationInterface {
+export class Migration1734355952730 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`CREATE OR REPLACE FUNCTION notify_outbox()
                             RETURNS TRIGGER AS $$

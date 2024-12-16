@@ -1,8 +1,10 @@
 import {
+  BadRequestException,
   ConflictException,
   HttpStatus,
   Inject,
   Injectable,
+  Logger,
 } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -12,13 +14,17 @@ import { InjectEntityManager, InjectRepository } from '@nestjs/typeorm';
 import { PostEvent } from './entities/post-event.entity';
 import { EventTypeEnum } from './enums/event-type.enum';
 import { IObjectHasher } from './hash/hash-object.interface';
-import { ObjectMd5Hasher } from './hash/objectMd5Hasher';
+import { ObjectMd5Hasher } from './hash/MD6-hash';
 import { PostDto } from './dto/post.dto';
 import { paginate, PaginateQuery } from 'nestjs-paginate';
-import { PostPaginationConfig } from './post-pagination.config';
+import { PostPaginationConfig } from './entities/post-pagination.config';
 
 @Injectable()
 export class PostsService {
+  private readonly logger = new Logger(PostsService.name, {
+    timestamp: true,
+  });
+
   constructor(
     @InjectRepository(Post) private postsRepository: Repository<Post>,
     @Inject(ObjectMd5Hasher) private hashProvider: IObjectHasher,
@@ -90,23 +96,27 @@ export class PostsService {
   }
 
   async update(id: string, updatePostDto: UpdatePostDto) {
-    const updated = await this.entityManager.transaction(
-      'SERIALIZABLE',
-      async (manager) => {
-        let post = await manager.findOneOrFail(Post, {
-          where: { id },
-          lock: { onLocked: 'skip_locked', mode: 'pessimistic_read' },
-        });
+    try {
+      const updated = await this.entityManager.transaction(
+        'SERIALIZABLE',
+        async (manager) => {
+          let post = await manager.findOneOrFail(Post, {
+            where: { id },
+            lock: { mode: 'pessimistic_write', onLocked: 'nowait' },
+          });
 
-        post = this.updatePost(post, updatePostDto);
-        post = await manager.save(post);
-        const event = this.createEvent(post, EventTypeEnum.POST_UPDATED);
-        await manager.save(event);
+          post = this.updatePost(post, updatePostDto);
+          post = await manager.save(post);
+          const event = this.createEvent(post, EventTypeEnum.POST_UPDATED);
+          await manager.save(event);
 
-        return post;
-      },
-    );
-    return PostDto.fromPost(updated);
+          return post;
+        },
+      );
+      return PostDto.fromPost(updated);
+    } catch (err) {
+      this.handleErrors(err);
+    }
   }
 
   updatePost(post: Post, updateDto: UpdatePostDto) {
@@ -125,25 +135,43 @@ export class PostsService {
   }
 
   async remove(id: string) {
-    const removed = await this.entityManager.transaction(
-      'READ COMMITTED',
-      async (manager) => {
-        const post = await manager.findOneOrFail(Post, { where: { id } });
-        await manager.remove(post);
-        const event = this.createEvent(post, EventTypeEnum.POST_REMOVED);
-        await manager.save(event);
-        return post;
-      },
-    );
-    return PostDto.fromPost(removed);
+    try {
+      const removed = await this.entityManager.transaction(
+        'READ COMMITTED',
+        async (manager) => {
+          const post = await manager.findOneOrFail(Post, { where: { id } });
+          // Create event before manager.remove sets id to undefined
+          const event = this.createEvent(post, EventTypeEnum.POST_REMOVED);
+          await manager.remove(post);
+          await manager.save(event);
+          return post;
+        },
+      );
+      return PostDto.fromPost(removed);
+    } catch (err) {
+      this.handleErrors(err);
+    }
   }
 
   private handleErrors(err) {
+    this.logger.error(err);
     if (err.constraint == 'UniquePostTitleConstraint') {
       throw new ConflictException({
         message: 'title must be unique',
         service: 'posts',
         status: HttpStatus.CONFLICT,
+      });
+    } else if (err.constraint == 'ContentLengthCheck') {
+      throw new BadRequestException({
+        message: 'Incorrect content length',
+        service: 'posts',
+        status: HttpStatus.BAD_REQUEST,
+      });
+    } else if (err.constraint == 'TitleLengthCheck') {
+      throw new BadRequestException({
+        message: 'Incorrect title length',
+        service: 'posts',
+        status: HttpStatus.BAD_REQUEST,
       });
     }
   }
