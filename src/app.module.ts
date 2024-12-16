@@ -4,6 +4,8 @@ import { PostsModule } from './posts/posts.module';
 import { Post } from './posts/entities/post.entity';
 import { PostEvent } from './posts/entities/post-event.entity';
 import { NatsListenerModule } from './nats-listener/nats-listener.module';
+import { Migration1734358538617 } from './migrations/1734358538617-migration';
+import { Migration1734358548943 } from './migrations/1734358548943-migration';
 
 @Module({
   imports: [
@@ -15,7 +17,7 @@ import { NatsListenerModule } from './nats-listener/nats-listener.module';
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
       entities: [Post, PostEvent],
-      migrations: [],
+      migrations: [Migration1734358538617, Migration1734358548943],
       migrationsRun: true,
     }),
     PostsModule,

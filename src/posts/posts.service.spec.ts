@@ -169,7 +169,7 @@ describe('PostsService', () => {
     expect(transactionSpy).toHaveBeenCalledTimes(1);
     expect(transactionalManagerMock.findOneOrFail).toHaveBeenCalledWith(Post, {
       where: { id: postId },
-      lock: { onLocked: 'skip_locked', mode: 'pessimistic_read' },
+      lock: { onLocked: 'nowait', mode: 'pessimistic_read' },
     });
     const expectedHash = updateDto.title + updateDto.content;
 

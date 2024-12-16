@@ -102,7 +102,7 @@ export class PostsService {
         async (manager) => {
           let post = await manager.findOneOrFail(Post, {
             where: { id },
-            lock: { mode: 'pessimistic_write', onLocked: 'nowait' },
+            lock: { mode: 'pessimistic_read', onLocked: 'nowait' },
           });
 
           post = this.updatePost(post, updatePostDto);
@@ -173,6 +173,8 @@ export class PostsService {
         service: 'posts',
         status: HttpStatus.BAD_REQUEST,
       });
+    } else {
+      throw err;
     }
   }
 

@@ -9,7 +9,7 @@ export class NatsListenerCOntroller {
 
   @EventPattern('POST_EVENT')
   getDate(@Payload() data) {
-    this.logger.log(data);
+    this.logger.log('received event', data);
     return 'ok';
   }
 }

@@ -7,7 +7,9 @@ import { BadRequestException, ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
   app.useGlobalPipes(
+    // add dtos validation and custom exceptions factory
     new ValidationPipe({
       exceptionFactory: (errors) => {
         const formattedErrors = errors
@@ -25,6 +27,7 @@ async function bootstrap() {
     }),
   );
 
+  // create swagger docs
   const config = new DocumentBuilder()
     .setTitle('Posts-app')
     .setDescription('Posts-api')
@@ -33,8 +36,10 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
+  // filter EntiotyNotFoundException thrown by typeorm
   app.useGlobalFilters(new EntityNotFoundExceptionFilter());
 
+  // add microservice to emit events via nats
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.NATS,
     options: {

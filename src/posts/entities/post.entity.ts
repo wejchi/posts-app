@@ -20,7 +20,7 @@ export class Post {
   title: string;
 
   @Column({ nullable: false, type: 'varchar' })
-  @Check('ContentLengthCheck', `LENGTH(title) >= 3`)
+  @Check('ContentLengthCheck', `LENGTH(content) >= 3`)
   content: string;
 
   //- state: enum (the only strings allowed are: DRAFT, PUBLISHED) - provided by the user, optional (can be stored as a list or string; implementation details are flexible); default value - DRAFT
